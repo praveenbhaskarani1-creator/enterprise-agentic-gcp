@@ -38,11 +38,11 @@ ON CONFLICT (customer_id) DO NOTHING;
 -- -----------------------------------------------------------------------------
 INSERT INTO products (product_id, tenant_id, sku, name, description, unit_price, currency, stock_quantity, status)
 VALUES
-    ('p0000000-0000-4000-a000-000000000001', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'SKU-ACME-1001', 'Industrial IoT Sensor Module v1', 'High precision vibration and temp sensor', 150.00, 'USD', 50, 'active'),
-    ('p0000000-0000-4000-a000-000000000002', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'SKU-ACME-1002', 'Enterprise Network Router Rack Unit', '10GbE enterprise core router', 1200.00, 'USD', 12, 'active'),
-    ('p0000000-0000-4000-a000-000000000003', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'SKU-ACME-1003', 'High-Speed Fiber Optic Patch Cable 50m', 'Armored multimode fiber cable', 45.00, 'USD', 200, 'active'),
-    ('p0000000-0000-4000-b000-000000000001', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'SKU-GLOB-2001', 'Smart POS Terminal Countertop', 'Contactless card & NFC payment register', 499.99, 'USD', 25, 'active'),
-    ('p0000000-0000-4000-b000-000000000002', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'SKU-GLOB-2002', 'Thermal Receipt Paper Roll 50-pack', 'BPA-free high density paper rolls', 29.99, 'USD', 100, 'active')
+    ('30000000-0000-4000-a000-000000000001', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'SKU-ACME-1001', 'Industrial IoT Sensor Module v1', 'High precision vibration and temp sensor', 150.00, 'USD', 50, 'active'),
+    ('30000000-0000-4000-a000-000000000002', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'SKU-ACME-1002', 'Enterprise Network Router Rack Unit', '10GbE enterprise core router', 1200.00, 'USD', 12, 'active'),
+    ('30000000-0000-4000-a000-000000000003', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'SKU-ACME-1003', 'High-Speed Fiber Optic Patch Cable 50m', 'Armored multimode fiber cable', 45.00, 'USD', 200, 'active'),
+    ('30000000-0000-4000-b000-000000000001', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'SKU-GLOB-2001', 'Smart POS Terminal Countertop', 'Contactless card & NFC payment register', 499.99, 'USD', 25, 'active'),
+    ('30000000-0000-4000-b000-000000000002', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'SKU-GLOB-2002', 'Thermal Receipt Paper Roll 50-pack', 'BPA-free high density paper rolls', 29.99, 'USD', 100, 'active')
 ON CONFLICT (product_id) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
@@ -63,12 +63,12 @@ ON CONFLICT (order_id) DO NOTHING;
 -- -----------------------------------------------------------------------------
 INSERT INTO order_items (order_item_id, tenant_id, order_id, product_id, quantity, unit_price, subtotal)
 VALUES
-    ('i0000000-0000-4000-a000-000000000001', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000001', 'p0000000-0000-4000-a000-000000000001', 2, 150.00, 300.00),
-    ('i0000000-0000-4000-a000-000000000002', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000001', 'p0000000-0000-4000-a000-000000000003', 1, 45.00, 45.00),
-    ('i0000000-0000-4000-a000-000000000003', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000002', 'p0000000-0000-4000-a000-000000000002', 1, 1200.00, 1200.00),
-    ('i0000000-0000-4000-a000-000000000004', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000003', 'p0000000-0000-4000-a000-000000000001', 1, 150.00, 150.00),
-    ('i0000000-0000-4000-b000-000000000005', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'd0000000-0000-4000-b000-000000000004', 'p0000000-0000-4000-b000-000000000001', 1, 499.99, 499.99),
-    ('i0000000-0000-4000-b000-000000000006', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'd0000000-0000-4000-b000-000000000005', 'p0000000-0000-4000-b000-000000000002', 1, 29.99, 29.99)
+    ('40000000-0000-4000-a000-000000000001', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000001', '30000000-0000-4000-a000-000000000001', 2, 150.00, 300.00),
+    ('40000000-0000-4000-a000-000000000002', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000001', '30000000-0000-4000-a000-000000000003', 1, 45.00, 45.00),
+    ('40000000-0000-4000-a000-000000000003', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000002', '30000000-0000-4000-a000-000000000002', 1, 1200.00, 1200.00),
+    ('40000000-0000-4000-a000-000000000004', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'd0000000-0000-4000-a000-000000000003', '30000000-0000-4000-a000-000000000001', 1, 150.00, 150.00),
+    ('40000000-0000-4000-b000-000000000005', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'd0000000-0000-4000-b000-000000000004', '30000000-0000-4000-b000-000000000001', 1, 499.99, 499.99),
+    ('40000000-0000-4000-b000-000000000006', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'd0000000-0000-4000-b000-000000000005', '30000000-0000-4000-b000-000000000002', 1, 29.99, 29.99)
 ON CONFLICT (order_item_id) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
