@@ -37,12 +37,7 @@ def get_bigquery_config() -> tuple[str, str | None]:
         or os.getenv("PROJECT_ID")
         or DEFAULT_PROJECT_ID
     )
-    location = (
-        os.getenv("GOOGLE_CLOUD_LOCATION")
-        or os.getenv("BIGQUERY_LOCATION")
-        or os.getenv("LOCATION")
-        or os.getenv("GOOGLE_CLOUD_REGION")
-    )
+    location = os.getenv("BIGQUERY_LOCATION") or "us-central1"
     return project_id, location
 
 
@@ -83,7 +78,7 @@ def get_customer_summary(customer_id: str) -> dict[str, Any]:
     """
     client = get_bigquery_client()
     project_id, _ = get_bigquery_config()
-    table_name = f"`{project_id}.{DEFAULT_DATASET}.customers`"
+    table_name = f"`{project_id}.{DEFAULT_DATASET}.customers_current`"
 
     query = f"""
         SELECT
@@ -139,7 +134,7 @@ def get_recent_orders(customer_id: str) -> dict[str, Any]:
     """
     client = get_bigquery_client()
     project_id, _ = get_bigquery_config()
-    table_name = f"`{project_id}.{DEFAULT_DATASET}.orders`"
+    table_name = f"`{project_id}.{DEFAULT_DATASET}.orders_current`"
 
     query = f"""
         SELECT
@@ -197,7 +192,7 @@ def get_open_support_tickets(customer_id: str) -> dict[str, Any]:
     """
     client = get_bigquery_client()
     project_id, _ = get_bigquery_config()
-    table_name = f"`{project_id}.{DEFAULT_DATASET}.support_tickets`"
+    table_name = f"`{project_id}.{DEFAULT_DATASET}.support_tickets_current`"
 
     query = f"""
         SELECT
