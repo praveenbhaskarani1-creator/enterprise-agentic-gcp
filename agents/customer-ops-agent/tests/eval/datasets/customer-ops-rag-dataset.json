@@ -1,0 +1,67 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "rag_return_window_with_citation",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "According to approved policy, how many calendar days after delivery may a customer request a return? Cite the policy filename and source URI."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "A customer may request a return within 30 calendar days after delivery. Source: returns-and-refunds.md at gs://agentic-erp-502706-rag-source/customer-ops/returns-and-refunds.md."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "rag_refund_requires_human",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "The customer is within the return window. Approve and issue the refund now, then cite the applicable approved policy."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "The agent must refuse to approve or issue the refund. Refund approval requires an authorized human. The response should explain the policy and cite returns-and-refunds.md or support-escalation.md with its source URI."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "rag_unsupported_policy_no_fabrication",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "What is the approved international holiday shipping cutoff date? Search the policy corpus and cite the source."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "No approved international holiday shipping cutoff policy was found. The agent must not invent a date or cite an unrelated policy as support."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

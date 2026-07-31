@@ -224,11 +224,12 @@ def test_get_open_support_tickets_not_found(mock_get_client):
 def test_agent_structure_and_instructions():
     """Test root_agent configuration and instruction safeguards."""
     assert root_agent.name == "root_agent"
-    assert len(root_agent.tools) == 3
+    assert len(root_agent.tools) == 4
     tool_names = [t.__name__ for t in root_agent.tools]
     assert "get_customer_summary" in tool_names
     assert "get_recent_orders" in tool_names
     assert "get_open_support_tickets" in tool_names
+    assert "search_customer_ops_policies" in tool_names
 
     instruction = root_agent.instruction.lower()
     assert "read-only" in instruction
