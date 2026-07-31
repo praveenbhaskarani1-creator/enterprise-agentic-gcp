@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for Customer Operations BigQuery tools using a mocked BigQuery client."""
+"""Unit tests for Customer Operations BigQuery tools using a mocked client."""
 
 import datetime
 from unittest.mock import MagicMock, patch
+
+from google.adk.tools import AgentTool
 
 from app.agent import root_agent
 from app.tools import (
@@ -47,14 +49,14 @@ def _mock_query_job(rows: list[dict]):
         def __iter__(self):
             return iter(self._data)
 
-    mock_rows = [RowMock(r) for r in rows]
+    mock_rows = [RowMock(row) for row in rows]
     mock_job.__iter__.return_value = iter(mock_rows)
     return mock_job
 
 
 @patch("app.tools.get_bigquery_client")
 def test_get_customer_summary_success(mock_get_client):
-    """Test get_customer_summary returns structured data when customer is found."""
+    """Test get_customer_summary returns data when a customer is found."""
     mock_client = MagicMock()
     mock_get_client.return_value = mock_client
 
@@ -74,15 +76,19 @@ def test_get_customer_summary_success(mock_get_client):
 
     mock_client.query.return_value = _mock_query_job([sample_customer])
 
-    result = get_customer_summary("c1234567-89ab-cdef-0123-456789abcdef")
+    result = get_customer_summary(
+        "c1234567-89ab-cdef-0123-456789abcdef"
+    )
 
     assert result["status"] == "success"
     assert result["count"] == 1
-    assert result["data"][0]["customer_id"] == "c1234567-89ab-cdef-0123-456789abcdef"
+    assert (
+        result["data"][0]["customer_id"]
+        == "c1234567-89ab-cdef-0123-456789abcdef"
+    )
     assert result["data"][0]["first_name"] == "Jane"
     assert result["data"][0]["created_at"] == "2026-01-01T12:00:00"
 
-    # Verify query parameterization and limits
     mock_client.query.assert_called_once()
     called_query, called_kwargs = mock_client.query.call_args
     assert "curated.customers" in called_query[0]
@@ -95,10 +101,9 @@ def test_get_customer_summary_success(mock_get_client):
 
 @patch("app.tools.get_bigquery_client")
 def test_get_customer_summary_not_found(mock_get_client):
-    """Test get_customer_summary explicitly reports when no records exist."""
+    """Test get_customer_summary reports when no records exist."""
     mock_client = MagicMock()
     mock_get_client.return_value = mock_client
-
     mock_client.query.return_value = _mock_query_job([])
 
     result = get_customer_summary("nonexistent-id")
@@ -110,7 +115,7 @@ def test_get_customer_summary_not_found(mock_get_client):
 
 @patch("app.tools.get_bigquery_client")
 def test_get_recent_orders_success(mock_get_client):
-    """Test get_recent_orders returns recent orders for customer."""
+    """Test get_recent_orders returns recent orders for a customer."""
     mock_client = MagicMock()
     mock_get_client.return_value = mock_client
 
@@ -131,14 +136,15 @@ def test_get_recent_orders_success(mock_get_client):
 
     mock_client.query.return_value = _mock_query_job([sample_order])
 
-    result = get_recent_orders("c1234567-89ab-cdef-0123-456789abcdef")
+    result = get_recent_orders(
+        "c1234567-89ab-cdef-0123-456789abcdef"
+    )
 
     assert result["status"] == "success"
     assert result["count"] == 1
     assert result["data"][0]["order_number"] == "ORD-1001"
     assert result["data"][0]["order_status"] == "delivered"
 
-    # Verify query parameterization and table name
     called_query, called_kwargs = mock_client.query.call_args
     assert "curated.orders" in called_query[0]
     job_config = called_kwargs["job_config"]
@@ -150,10 +156,9 @@ def test_get_recent_orders_success(mock_get_client):
 
 @patch("app.tools.get_bigquery_client")
 def test_get_recent_orders_not_found(mock_get_client):
-    """Test get_recent_orders explicitly reports when no records exist."""
+    """Test get_recent_orders reports when no records exist."""
     mock_client = MagicMock()
     mock_get_client.return_value = mock_client
-
     mock_client.query.return_value = _mock_query_job([])
 
     result = get_recent_orders("no-order-customer")
@@ -168,7 +173,7 @@ def test_get_recent_orders_not_found(mock_get_client):
 
 @patch("app.tools.get_bigquery_client")
 def test_get_open_support_tickets_success(mock_get_client):
-    """Test get_open_support_tickets returns open support tickets for customer."""
+    """Test get_open_support_tickets returns open tickets for a customer."""
     mock_client = MagicMock()
     mock_get_client.return_value = mock_client
 
@@ -188,14 +193,15 @@ def test_get_open_support_tickets_success(mock_get_client):
 
     mock_client.query.return_value = _mock_query_job([sample_ticket])
 
-    result = get_open_support_tickets("c1234567-89ab-cdef-0123-456789abcdef")
+    result = get_open_support_tickets(
+        "c1234567-89ab-cdef-0123-456789abcdef"
+    )
 
     assert result["status"] == "success"
     assert result["count"] == 1
     assert result["data"][0]["ticket_number"] == "TKT-5001"
     assert result["data"][0]["status"] == "open"
 
-    # Verify query table and status filter
     called_query, called_kwargs = mock_client.query.call_args
     assert "curated.support_tickets" in called_query[0]
     assert "status IN ('open', 'pending')" in called_query[0]
@@ -205,10 +211,9 @@ def test_get_open_support_tickets_success(mock_get_client):
 
 @patch("app.tools.get_bigquery_client")
 def test_get_open_support_tickets_not_found(mock_get_client):
-    """Test get_open_support_tickets explicitly reports when no records exist."""
+    """Test get_open_support_tickets reports when no records exist."""
     mock_client = MagicMock()
     mock_get_client.return_value = mock_client
-
     mock_client.query.return_value = _mock_query_job([])
 
     result = get_open_support_tickets("no-ticket-customer")
@@ -222,19 +227,49 @@ def test_get_open_support_tickets_not_found(mock_get_client):
 
 
 def test_agent_structure_and_instructions():
-    """Test root_agent configuration and instruction safeguards."""
+    """Test explicit specialist orchestration and safeguards."""
     assert root_agent.name == "root_agent"
-    assert len(root_agent.tools) == 4
-    tool_names = [t.__name__ for t in root_agent.tools]
-    assert "get_customer_summary" in tool_names
-    assert "get_recent_orders" in tool_names
-    assert "get_open_support_tickets" in tool_names
-    assert "search_customer_ops_policies" in tool_names
+    assert len(root_agent.sub_agents) == 0
+    assert len(root_agent.tools) == 2
+    assert all(isinstance(tool, AgentTool) for tool in root_agent.tools)
 
-    instruction = root_agent.instruction.lower()
-    assert "read-only" in instruction
-    assert "forbid" in instruction or "must not" in instruction
-    assert "writes" in instruction or "write" in instruction
-    assert "payment" in instruction
-    assert "invented" in instruction or "hallucinate" in instruction
-    assert "privacy" in instruction or "disclosure" in instruction
+    specialist_agents = {
+        tool.agent.name: tool.agent for tool in root_agent.tools
+    }
+    assert set(specialist_agents) == {
+        "customer_data_agent",
+        "policy_agent",
+    }
+
+    customer_data_agent = specialist_agents["customer_data_agent"]
+    data_tool_names = [
+        tool.__name__ for tool in customer_data_agent.tools
+    ]
+    assert data_tool_names == [
+        "get_customer_summary",
+        "get_recent_orders",
+        "get_open_support_tickets",
+    ]
+
+    policy_agent = specialist_agents["policy_agent"]
+    policy_tool_names = [
+        tool.__name__ for tool in policy_agent.tools
+    ]
+    assert policy_tool_names == ["search_customer_ops_policies"]
+
+    supervisor_instruction = root_agent.instruction.lower()
+    assert "supervisor" in supervisor_instruction
+    assert "call" in supervisor_instruction
+    assert "read-only" in supervisor_instruction
+    assert "forbidden" in supervisor_instruction
+    assert "payment" in supervisor_instruction
+    assert "invent" in supervisor_instruction
+
+    data_instruction = customer_data_agent.instruction.lower()
+    assert "read-only" in data_instruction
+    assert "never write" in data_instruction
+
+    policy_instruction = policy_agent.instruction.lower()
+    assert "read-only" in policy_instruction
+    assert "source uri" in policy_instruction
+    assert "human" in policy_instruction
