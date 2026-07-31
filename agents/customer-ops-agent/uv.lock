@@ -403,7 +403,7 @@ dependencies = [
     { name = "a2a-sdk", extra = ["http-server"] },
     { name = "aiohttp" },
     { name = "gcsfs" },
-    { name = "google-adk", extra = ["gcp", "otel-gcp"] },
+    { name = "google-adk", extra = ["gcp", "otel-gcp", "toolbox"] },
     { name = "google-cloud-aiplatform" },
     { name = "google-cloud-bigquery" },
     { name = "google-cloud-logging" },
@@ -435,7 +435,7 @@ requires-dist = [
     { name = "codespell", marker = "extra == 'lint'", specifier = ">=2.2.0,<3.0.0" },
     { name = "gcsfs", specifier = ">=2024.11.0" },
     { name = "google-adk", extras = ["eval"], marker = "extra == 'eval'", specifier = ">=2.0.0,<3.0.0" },
-    { name = "google-adk", extras = ["gcp", "otel-gcp"], specifier = ">=2.2.0,<3.0.0" },
+    { name = "google-adk", extras = ["gcp", "otel-gcp", "toolbox"], specifier = ">=2.5.0,<3.0.0" },
     { name = "google-cloud-aiplatform", specifier = ">=1.156.0,<2.0.0" },
     { name = "google-cloud-aiplatform", extras = ["evaluation"], marker = "extra == 'eval'", specifier = ">=1.156.0" },
     { name = "google-cloud-bigquery", specifier = ">=3.20.0,<4.0.0" },
@@ -469,6 +469,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69", size = 75520, upload-time = "2021-03-08T10:59:26.269Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61", size = 25604, upload-time = "2021-03-08T10:59:24.45Z" },
+]
+
+[[package]]
+name = "deprecated"
+version = "1.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wrapt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/49/85/12f0a49a7c4ffb70572b6c2ef13c90c88fd190debda93b23f026b25f9634/deprecated-1.3.1.tar.gz", hash = "sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223", size = 2932523, upload-time = "2025-10-30T08:19:02.757Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/d0/205d54408c08b13550c733c4b85429e7ead111c7f0014309637425520a9a/deprecated-1.3.1-py2.py3-none-any.whl", hash = "sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f", size = 11298, upload-time = "2025-10-30T08:19:00.758Z" },
 ]
 
 [[package]]
@@ -735,6 +747,9 @@ otel-gcp = [
     { name = "opentelemetry-instrumentation-google-genai" },
     { name = "opentelemetry-instrumentation-grpc" },
     { name = "opentelemetry-instrumentation-httpx" },
+]
+toolbox = [
+    { name = "toolbox-adk" },
 ]
 
 [[package]]
@@ -3099,6 +3114,38 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/6a/dd/631b21433c771b1382535326f0eca80b9c9cee2e64961dd993bc9ac4669e/tokenizers-0.23.1-cp310-abi3-win32.whl", hash = "sha256:93120a930b919416da7cd10a2f606ac9919cc69cacae7980fa2140e277660948", size = 2536263, upload-time = "2026-04-27T14:43:29.888Z" },
     { url = "https://files.pythonhosted.org/packages/97/c9/2553f72aaf65a2797d4229e37fa7fbe38ffbf3e32912d31bdd78b3323e59/tokenizers-0.23.1-cp310-abi3-win_amd64.whl", hash = "sha256:e7bfaf995c1bdbbd21d13539decb6650967013759318627d85daeb7881af16b7", size = 2798223, upload-time = "2026-04-27T14:43:28.51Z" },
     { url = "https://files.pythonhosted.org/packages/cd/2b/2be299bab55fc595e3d38567edb1a87f86e594842968fa9515a07bdcf422/tokenizers-0.23.1-cp310-abi3-win_arm64.whl", hash = "sha256:a26197957d8e4425dfba746315f3c425ea00cfa8367c5fbc4ec73447893dcea9", size = 2664127, upload-time = "2026-04-27T14:43:26.949Z" },
+]
+
+[[package]]
+name = "toolbox-adk"
+version = "1.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "google-adk" },
+    { name = "google-auth" },
+    { name = "google-auth-oauthlib" },
+    { name = "toolbox-core" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/28/28/2f834e030f41b87ffd7dc514f61239f9435d734ba17204be6c9bb909471a/toolbox_adk-1.3.1.tar.gz", hash = "sha256:08be0d4655b8b99dc049230c7f3d981d672deaa840a49716dd48f7dec9ea6c4a", size = 12293, upload-time = "2026-07-29T09:43:45.806Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/41/f25f05c6d9888d96f35d7eebe3269a30b1c03c44f2ffcaf2a97d39bad8ac/toolbox_adk-1.3.1-py3-none-any.whl", hash = "sha256:46b33cd68f6afdbf88a70ab5e65f657fca004be909c1716dd98e2b610cb787f3", size = 14576, upload-time = "2026-07-29T09:43:44.56Z" },
+]
+
+[[package]]
+name = "toolbox-core"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "deprecated" },
+    { name = "google-auth" },
+    { name = "pydantic" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fa/c0/b17db1b36e81a001ed0d2efe040968b797f7bdec08dfe614e565bbd67cd5/toolbox_core-1.3.0.tar.gz", hash = "sha256:2bb3e89ecd5304e0c285d5dbe6c16f7ecf31bf1319427133b465e11807402ec9", size = 65708, upload-time = "2026-07-28T15:56:18.236Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1f/ed/64b1d6ba971a34811bb3beb3b7fa6d99883c128cbf3bc8ac4e9e5aab088c/toolbox_core-1.3.0-py3-none-any.whl", hash = "sha256:d08743d278bb1b62dc2fcd4adb82c8982e7aeb7b457057ba26b41f9102c498d3", size = 64587, upload-time = "2026-07-28T15:56:16.887Z" },
 ]
 
 [[package]]

@@ -20,6 +20,7 @@ from unittest.mock import MagicMock, patch
 from google.adk.tools import AgentTool
 
 from app.agent import root_agent
+from app.mcp_tools import customer_ops_mcp_toolset
 from app.tools import (
     DEFAULT_MAX_BYTES_BILLED,
     MAX_RESULT_LIMIT,
@@ -242,14 +243,7 @@ def test_agent_structure_and_instructions():
     }
 
     customer_data_agent = specialist_agents["customer_data_agent"]
-    data_tool_names = [
-        tool.__name__ for tool in customer_data_agent.tools
-    ]
-    assert data_tool_names == [
-        "get_customer_summary",
-        "get_recent_orders",
-        "get_open_support_tickets",
-    ]
+    assert customer_data_agent.tools == [customer_ops_mcp_toolset]
 
     policy_agent = specialist_agents["policy_agent"]
     policy_tool_names = [
@@ -268,6 +262,7 @@ def test_agent_structure_and_instructions():
     data_instruction = customer_data_agent.instruction.lower()
     assert "read-only" in data_instruction
     assert "never write" in data_instruction
+    assert "mcp toolbox" in data_instruction
 
     policy_instruction = policy_agent.instruction.lower()
     assert "read-only" in policy_instruction
