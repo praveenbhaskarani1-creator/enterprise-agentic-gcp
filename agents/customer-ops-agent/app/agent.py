@@ -23,10 +23,23 @@ from google.adk.models import Gemini
 from google.adk.tools import AgentTool
 from google.genai import types
 
+from app.jira_agent import build_jira_agent
 from app.remote_agents import build_remote_specialists
 from app.specialist_agents import customer_data_agent, policy_agent
 
 MODEL = "gemini-3.6-flash"
+
+
+def _with_optional_jira(
+    specialist_agents: list[BaseAgent],
+) -> list[BaseAgent]:
+    """Add the Jira specialist only when Jira MCP is enabled."""
+    jira_agent = build_jira_agent()
+
+    if jira_agent is not None:
+        specialist_agents.append(jira_agent)
+
+    return specialist_agents
 
 
 def _build_supervisor(specialist_agents: list[BaseAgent]) -> Agent:
@@ -35,14 +48,13 @@ def _build_supervisor(specialist_agents: list[BaseAgent]) -> Agent:
         name="root_agent",
         description=(
             "Supervises customer operations requests and delegates them "
-            "to the appropriate read-only specialist agent."
+            "to scoped specialist agents."
         ),
         model=Gemini(
             model=MODEL,
             retry_options=types.HttpRetryOptions(attempts=3),
         ),
         instruction="""
-All data access and specialist operations are read-only.
 I am the Customer Operations Supervisor Agent.
 
 Route requests as follows:
@@ -50,24 +62,29 @@ Route requests as follows:
   lookups.
 - Call the policy_agent tool for policy, privacy, returns, refunds, and
   escalation questions.
+- When the jira_agent tool is available, call it for Jira issue, project,
+  search, or explicitly requested Jira workflow operations.
 - For mixed requests, call every required specialist tool before composing
   the final response.
 
-Do not perform database operations or policy searches yourself. Do not invent
-customer data or policy information.
+Customer database access and policy retrieval are read-only. Do not perform
+database operations or policy searches yourself. Do not invent customer data,
+policy information, Jira records, or tool results.
 
 Database writes, order changes, payment modifications, refund approvals,
 account closures, privileged exports, and access-control bypasses are
-forbidden. Explain the restriction and require an authorized human when an
-action needs approval.
+forbidden.
 
-Return concise answers and preserve policy source citations supplied by the
-policy agent.
+A Jira write may occur only through the Jira specialist when write access is
+explicitly enabled, the user requested that exact action, and an authorized
+human confirms the proposed tool call. Never bypass or simulate confirmation.
+
+Return concise answers and preserve source citations supplied by specialists.
 """,
         tools=[
-    AgentTool(agent=agent)
-    for agent in specialist_agents
-],
+            AgentTool(agent=agent)
+            for agent in specialist_agents
+        ],
     )
 
 
@@ -75,18 +92,31 @@ AGENT_ROLE = os.getenv("AGENT_ROLE", "combined").strip().lower()
 
 if AGENT_ROLE == "combined":
     root_agent = _build_supervisor(
-        [customer_data_agent, policy_agent]
+        _with_optional_jira(
+            [customer_data_agent, policy_agent],
+        )
     )
 elif AGENT_ROLE == "customer_data":
     root_agent = customer_data_agent
 elif AGENT_ROLE == "policy":
     root_agent = policy_agent
+elif AGENT_ROLE == "jira":
+    jira_agent = build_jira_agent()
+
+    if jira_agent is None:
+        raise ValueError(
+            "AGENT_ROLE=jira requires ATLASSIAN_MCP_ENABLED=true."
+        )
+
+    root_agent = jira_agent
 elif AGENT_ROLE == "supervisor":
-    root_agent = _build_supervisor(build_remote_specialists())
+    root_agent = _build_supervisor(
+        _with_optional_jira(build_remote_specialists())
+    )
 else:
     raise ValueError(
         f"Unsupported AGENT_ROLE '{AGENT_ROLE}'. Use combined, "
-        "customer_data, policy, or supervisor."
+        "customer_data, policy, jira, or supervisor."
     )
 
 
