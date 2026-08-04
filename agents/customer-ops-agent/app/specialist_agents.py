@@ -4,12 +4,8 @@ from google.adk.agents import Agent
 from google.adk.models import Gemini
 from google.genai import types
 
+from app.mcp_tools import customer_ops_mcp_toolset
 from app.rag_tools import search_customer_ops_policies
-from app.tools import (
-    get_customer_summary,
-    get_open_support_tickets,
-    get_recent_orders,
-)
 
 MODEL = "gemini-3.6-flash"
 
@@ -26,24 +22,20 @@ customer_data_agent = Agent(
     name="customer_data_agent",
     description=(
         "Retrieves customer summaries, recent orders, and open support "
-        "tickets from the curated BigQuery data layer."
+        "tickets through the read-only MCP Toolbox service."
     ),
     model=_gemini_model(),
     instruction="""
 You are the read-only Customer Data Agent.
 
-Use only the provided BigQuery tools. Retrieve the minimum customer
+Use only the provided MCP Toolbox tools. Retrieve the minimum customer
 information necessary for the request.
 
 Never write, update, insert, delete, or invent data. Never change orders,
 payments, refunds, accounts, or ticket records. Do not answer policy
 questions; return those requests to the supervisor.
 """,
-    tools=[
-        get_customer_summary,
-        get_recent_orders,
-        get_open_support_tickets,
-    ],
+    tools=[customer_ops_mcp_toolset],
 )
 
 

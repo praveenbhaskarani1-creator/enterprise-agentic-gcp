@@ -1,0 +1,106 @@
+kind: source
+name: customer-ops-bigquery
+type: bigquery
+project: agentic-erp-502706
+location: us-central1
+writeMode: blocked
+allowedDatasets:
+  - curated
+maxQueryResultRows: 10
+maximumBytesBilled: 104857600
+
+---
+kind: tool
+name: get_customer_summary
+type: bigquery-sql
+source: customer-ops-bigquery
+description: >
+  Retrieve one customer summary by customer ID from the curated,
+  read-only BigQuery view.
+parameters:
+  - name: customer_id
+    type: string
+    description: Customer UUID to retrieve.
+statement: |
+  SELECT
+    customer_id,
+    external_customer_ref,
+    first_name,
+    last_name,
+    email,
+    phone_number,
+    company_name,
+    status,
+    created_at,
+    updated_at
+  FROM `agentic-erp-502706.curated.customers_current`
+  WHERE customer_id = @customer_id
+  LIMIT 1
+
+---
+kind: tool
+name: get_recent_orders
+type: bigquery-sql
+source: customer-ops-bigquery
+description: >
+  Retrieve up to ten recent orders for one customer from the curated,
+  read-only BigQuery view.
+parameters:
+  - name: customer_id
+    type: string
+    description: Customer UUID whose recent orders should be retrieved.
+statement: |
+  SELECT
+    order_id,
+    customer_id,
+    order_number,
+    order_status,
+    total_amount,
+    currency,
+    shipping_address_masked,
+    ordered_at,
+    promised_delivery_at,
+    created_at,
+    updated_at
+  FROM `agentic-erp-502706.curated.orders_current`
+  WHERE customer_id = @customer_id
+  ORDER BY ordered_at DESC
+  LIMIT 10
+
+---
+kind: tool
+name: get_open_support_tickets
+type: bigquery-sql
+source: customer-ops-bigquery
+description: >
+  Retrieve up to ten open or pending support tickets for one customer
+  from the curated, read-only BigQuery view.
+parameters:
+  - name: customer_id
+    type: string
+    description: Customer UUID whose support tickets should be retrieved.
+statement: |
+  SELECT
+    support_ticket_id,
+    customer_id,
+    order_id,
+    ticket_number,
+    subject,
+    priority,
+    status,
+    category,
+    created_at,
+    updated_at
+  FROM `agentic-erp-502706.curated.support_tickets_current`
+  WHERE customer_id = @customer_id
+    AND LOWER(status) IN ('open', 'pending')
+  ORDER BY created_at DESC
+  LIMIT 10
+
+---
+kind: toolset
+name: customer-ops-readonly
+tools:
+  - get_customer_summary
+  - get_recent_orders
+  - get_open_support_tickets

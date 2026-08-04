@@ -17,9 +17,11 @@
 import datetime
 from unittest.mock import MagicMock, patch
 
-from google.adk.tools import AgentTool
+from google.adk.tools import AgentTool, FunctionTool
 
 from app.agent import root_agent
+from app.approval_tools import human_review_tool
+from app.mcp_tools import customer_ops_mcp_toolset
 from app.tools import (
     DEFAULT_MAX_BYTES_BILLED,
     MAX_RESULT_LIMIT,
@@ -230,11 +232,25 @@ def test_agent_structure_and_instructions():
     """Test explicit specialist orchestration and safeguards."""
     assert root_agent.name == "root_agent"
     assert len(root_agent.sub_agents) == 0
-    assert len(root_agent.tools) == 2
-    assert all(isinstance(tool, AgentTool) for tool in root_agent.tools)
+    assert len(root_agent.tools) == 3
+
+    specialist_tools = [
+        tool
+        for tool in root_agent.tools
+        if isinstance(tool, AgentTool)
+    ]
+    review_tools = [
+        tool
+        for tool in root_agent.tools
+        if isinstance(tool, FunctionTool)
+    ]
+
+    assert len(specialist_tools) == 2
+    assert review_tools == [human_review_tool]
 
     specialist_agents = {
-        tool.agent.name: tool.agent for tool in root_agent.tools
+        tool.agent.name: tool.agent
+        for tool in specialist_tools
     }
     assert set(specialist_agents) == {
         "customer_data_agent",
@@ -242,14 +258,7 @@ def test_agent_structure_and_instructions():
     }
 
     customer_data_agent = specialist_agents["customer_data_agent"]
-    data_tool_names = [
-        tool.__name__ for tool in customer_data_agent.tools
-    ]
-    assert data_tool_names == [
-        "get_customer_summary",
-        "get_recent_orders",
-        "get_open_support_tickets",
-    ]
+    assert customer_data_agent.tools == [customer_ops_mcp_toolset]
 
     policy_agent = specialist_agents["policy_agent"]
     policy_tool_names = [
@@ -264,10 +273,14 @@ def test_agent_structure_and_instructions():
     assert "forbidden" in supervisor_instruction
     assert "payment" in supervisor_instruction
     assert "invent" in supervisor_instruction
+    assert "stage_human_review_request" in supervisor_instruction
+    assert "never call the review tool automatically" in supervisor_instruction
+    assert "never bypass" in supervisor_instruction
 
     data_instruction = customer_data_agent.instruction.lower()
     assert "read-only" in data_instruction
     assert "never write" in data_instruction
+    assert "mcp toolbox" in data_instruction
 
     policy_instruction = policy_agent.instruction.lower()
     assert "read-only" in policy_instruction
