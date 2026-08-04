@@ -23,6 +23,7 @@ from google.adk.models import Gemini
 from google.adk.tools import AgentTool
 from google.genai import types
 
+from app.approval_tools import human_review_tool
 from app.jira_agent import build_jira_agent
 from app.remote_agents import build_remote_specialists
 from app.specialist_agents import customer_data_agent, policy_agent
@@ -44,6 +45,11 @@ def _with_optional_jira(
 
 def _build_supervisor(specialist_agents: list[BaseAgent]) -> Agent:
     """Build a supervisor with local or remote specialist agents."""
+    supervisor_tools = [
+        AgentTool(agent=agent)
+        for agent in specialist_agents
+    ]
+    supervisor_tools.append(human_review_tool)
     return Agent(
         name="root_agent",
         description=(
@@ -74,6 +80,14 @@ policy information, Jira records, or tool results.
 Database writes, order changes, payment modifications, refund approvals,
 account closures, privileged exports, and access-control bypasses are
 forbidden.
+If the user explicitly asks to submit a sensitive action for formal human
+review, you may call stage_human_review_request. Explain before calling it
+that confirmation stages a review request only; it does not approve or
+execute the underlying business action.
+
+Never call the review tool automatically during a refusal. Never describe
+confirmation of the review-tool call as authorization for a refund, payment,
+account, export, database, order, or Jira action.
 
 A Jira write may occur only through the Jira specialist when write access is
 explicitly enabled, the user requested that exact action, and an authorized
@@ -81,10 +95,7 @@ human confirms the proposed tool call. Never bypass or simulate confirmation.
 
 Return concise answers and preserve source citations supplied by specialists.
 """,
-        tools=[
-            AgentTool(agent=agent)
-            for agent in specialist_agents
-        ],
+               tools=supervisor_tools,
     )
 
 
