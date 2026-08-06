@@ -27,6 +27,7 @@ from google.cloud import logging as google_cloud_logging
 from app.app_utils import services
 from app.app_utils.a2a import attach_a2a_routes
 from app.app_utils.typing import Feedback
+from app.rate_limit import add_rate_limit_middleware
 
 load_dotenv()
 _, project_id = google.auth.default()
@@ -73,6 +74,10 @@ app: FastAPI = get_fast_api_app(
 )
 app.title = "customer-ops-agent"
 app.description = "API for interacting with the Agent customer-ops-agent"
+add_rate_limit_middleware(
+    app,
+    event_logger=logger,
+)
 
 
 @app.post("/feedback")

@@ -23,6 +23,7 @@ from google.adk.models import Gemini
 from google.adk.tools import AgentTool
 from google.genai import types
 
+from app.analytics import build_agent_analytics_plugins
 from app.approval_tools import human_review_tool
 from app.jira_agent import build_jira_agent
 from app.remote_agents import build_remote_specialists
@@ -134,4 +135,5 @@ else:
 app = App(
     root_agent=root_agent,
     name="app",
+    plugins=build_agent_analytics_plugins(),
 )
