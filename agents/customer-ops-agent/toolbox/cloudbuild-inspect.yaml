@@ -1,0 +1,15 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        image="us-central1-docker.pkg.dev/agentic-erp-502706/agentic-erp-containers/customer-ops-toolbox:day11-v3"
+        docker pull "$image"
+        container_id="$(docker create "$image")"
+        docker cp "${container_id}:/app/tools.yaml" /workspace/tools.yaml
+        docker rm "$container_id"
+        grep -nE "raw_cdc|curated|FROM" /workspace/tools.yaml
+
+options:
+  logging: CLOUD_LOGGING_ONLY
