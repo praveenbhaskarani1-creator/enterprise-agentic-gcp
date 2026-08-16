@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agentic-erp
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: customer-ops-agent
+  namespace: agentic-erp
+  annotations:
+    iam.gke.io/gcp-service-account: customer-ops-agent-runtime@agentic-erp-502706.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-ops-agent
+  namespace: agentic-erp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-ops-agent
+  template:
+    metadata:
+      labels:
+        app: customer-ops-agent
+    spec:
+      serviceAccountName: customer-ops-agent
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: agent
+          image: us-central1-docker.pkg.dev/agentic-erp-502706/agentic-erp-containers/customer-ops-agent@sha256:39bb5d5484eccd4e24646338010333c8d3e864c69beea0f851b53097d453ca48
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: GOOGLE_GENAI_USE_VERTEXAI
+              value: "true"
+            - name: GOOGLE_CLOUD_PROJECT
+              value: agentic-erp-502706
+            - name: GOOGLE_CLOUD_LOCATION
+              value: global
+            - name: BIGQUERY_LOCATION
+              value: us-central1
+            - name: RAG_LOCATION
+              value: us-central1
+            - name: RAG_CORPUS_RESOURCE
+              value: projects/agentic-erp-502706/locations/us-central1/ragCorpora/1928886442746970112
+            - name: RAG_TOP_K
+              value: "3"
+            - name: AGENT_ROLE
+              value: combined
+            - name: TOOLBOX_SERVER_URL
+              value: http://127.0.0.1:5000
+            - name: TOOLBOX_TOOLSET_NAME
+              value: customer-ops-readonly
+            - name: ATLASSIAN_MCP_ENABLED
+              value: "false"
+            - name: APP_ENV
+              value: dev
+            - name: APP_URL
+              value: http://customer-ops-agent.agentic-erp.svc.cluster.local
+            - name: BQ_ANALYTICS_ENABLED
+              value: "true"
+            - name: BQ_ANALYTICS_DATASET_ID
+              value: agent_analytics
+            - name: BQ_ANALYTICS_TABLE_ID
+              value: agent_events
+            - name: BQ_ANALYTICS_LOCATION
+              value: us-central1
+            - name: RATE_LIMIT_ENABLED
+              value: "true"
+            - name: RATE_LIMIT_REQUESTS_PER_WINDOW
+              value: "60"
+            - name: RATE_LIMIT_WINDOW_SECONDS
+              value: "60"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+              ephemeral-storage: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+              ephemeral-storage: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 20
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+        - name: toolbox
+          image: us-central1-docker.pkg.dev/agentic-erp-502706/agentic-erp-containers/customer-ops-toolbox@sha256:356a52355f937e8b1a8b0a75476f535b6001e3686d90653e02fb0c9211006b5b
+          ports:
+            - name: toolbox
+              containerPort: 5000
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+              ephemeral-storage: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+              ephemeral-storage: 1Gi
+          readinessProbe:
+            tcpSocket:
+              port: toolbox
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-ops-agent
+  namespace: agentic-erp
+spec:
+  type: ClusterIP
+  selector:
+    app: customer-ops-agent
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
