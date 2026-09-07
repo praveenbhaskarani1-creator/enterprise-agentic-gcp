@@ -1,0 +1,6 @@
+.agents/
+.claude/
+.gemini/
+examples/
+roundtrip/
+AGENTS.md
