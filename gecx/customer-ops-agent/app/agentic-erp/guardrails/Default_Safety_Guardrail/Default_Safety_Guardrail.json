@@ -1,0 +1,30 @@
+{
+  "name": "08fd37a5-3cbe-4aae-bfef-219d3652bfad",
+  "displayName": "Default Safety Guardrail",
+  "enabled": true,
+  "action": {
+    "generativeAnswer": {
+      "prompt": "Briefly explain that the request cannot be completed because it violates safety requirements. Do not repeat or expand harmful content. Offer a safe alternative when appropriate."
+    }
+  },
+  "modelSafety": {
+    "safetySettings": [
+      {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_LOW_AND_ABOVE"
+      },
+      {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_LOW_AND_ABOVE"
+      },
+      {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_LOW_AND_ABOVE"
+      },
+      {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_LOW_AND_ABOVE"
+      }
+    ]
+  }
+}

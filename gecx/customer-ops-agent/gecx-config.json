@@ -1,0 +1,8 @@
+{
+  "gcp_project_id": "agentic-erp-502706",
+  "location": "us",
+  "app_name": "agentic-erp",
+  "deployed_app_id": null,
+  "model": "gemini-3-flash",
+  "modality": "text"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "73d7a2b9-566e-4bf7-b0f5-413334dbd862",
+  "displayName": "Root agent",
+  "instruction": "agents/Root agent/instruction.txt",
+  "tools": ["end_session"]
+}

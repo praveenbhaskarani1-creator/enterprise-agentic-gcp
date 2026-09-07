@@ -1,0 +1,17 @@
+{
+  "name": "cf8141df-a2f9-40a2-80dc-561f9d99b887",
+  "displayName": "agentic-erp",
+  "rootAgent": "Root agent",
+  "loggingSettings": {
+    "conversationLoggingSettings": {
+      "retentionWindow": "31536000s"
+    }
+  },
+  "guardrails": [
+    "Default Safety Guardrail",
+    "Default Prompt Guardrail"
+  ],
+  "timeZoneSettings": {
+    "timeZone": "America/Los_Angeles"
+  }
+}
