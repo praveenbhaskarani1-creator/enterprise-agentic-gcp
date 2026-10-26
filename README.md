@@ -23,6 +23,12 @@ The lab targets a modern enterprise architecture built on Google Cloud services 
 > [!NOTE]
 > **Current Status Notice**: The project is currently at **Day 1 foundation** status. The components listed above represent planned architectural targets under active development. Unbuilt components do not currently exist in the codebase.
 
+## Architecture Diagram
+
+![Customer Operations agent architecture](docs/images/architecture-overview.svg)
+
+Full detail with Mermaid diagrams (agent topology, request flow, human-in-the-loop, deployment, security layers): [docs/architecture.md](docs/architecture.md). Decision records: [docs/design-decisions.md](docs/design-decisions.md). Security model: [docs/security-and-governance.md](docs/security-and-governance.md).
+
 ## Learning Objectives
 - Design and evaluate autonomous and semi-autonomous AI agents for ERP customer operations.
 - Construct real-time CDC data pipelines connecting PostgreSQL to BigQuery via Datastream and Dataflow.
